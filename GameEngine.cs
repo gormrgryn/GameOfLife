@@ -6,31 +6,77 @@ using System.Threading.Tasks;
 
 namespace GameOfLife
 {
-    public class GameEngine
+    public abstract class Cell // ABSTRACT PRODUCT
     {
-        private bool[,] field;
-        private readonly int rows;
-        private readonly int cols;
-        public uint currentGen { get; private set; }
-        private Random random = new Random();
-        public GameEngine(int rows, int cols, int density)
+        public abstract int x { get; set; }
+        public abstract int y { get; set; }
+    }
+    public abstract class Creator // ABSTRACT PRODUCT CREATOR
+    {
+        public abstract Cell CreateCell(int x, int y);
+    }
+    public class GrassCell : Cell // CONCRETE PRODUCT
+    {
+        public override int x { get; set; }
+        public override int y { get; set; }
+        public GrassCell(int x, int y)
         {
-            this.rows = rows;
-            this.cols = cols;
-            field = new bool[cols, rows];
-
-            for (int x = 0; x < cols; x++)
+            this.x = x;
+            this.y = y;
+        }
+        public bool Mult(int x, int y, Cell[,] field)
+        {
+            MultAction mAction = new MultAction();
+            Creator gCreator = new GrassCreator();
+            if (GetNeighbours.CountNeighbours(x, y, field) >= 4) return mAction.DoAction(x, y, gCreator, field);
+            return false;
+        }
+    }
+    public class GrassCreator : Creator // CONCRETE PRODUCT CREATOR
+    {
+        public override Cell CreateCell(int x, int y) { return new GrassCell(x, y); }
+    }
+    public class EmptyCell : Cell // CONCRETE PRODUCT
+    {
+        public override int x { get; set; }
+        public override int y { get; set; }
+        public EmptyCell(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
+    public class EmptyCreator : Creator // CONCRETE PRODUCT CREATOR
+    {
+        public override Cell CreateCell(int x, int y) { return new EmptyCell(x, y); }
+    }
+    interface IAction // ACTION INTERFACE
+    {
+        bool DoAction(int x, int y, Creator creator, Cell[,] field);
+    }
+    class MultAction : IAction // ACTION CLASS
+    {
+        public bool DoAction(int x, int y, Creator creator, Cell[,] field)
+        {
+            Cell[] cells = GetNeighbours.GetCells(x, y, field);
+            foreach (var i in cells)
             {
-                for (int y = 0; y < rows; y++)
+                if (i is EmptyCell)
                 {
-                    field[x, y] = (random.Next(density) == 0);
+                    field[i.x, i.y] = creator.CreateCell(i.x, i.y);
+                    return true;
                 }
             }
+            return false;
         }
-        private int CountNeighbours(int x, int y)
+    }
+    class GetNeighbours
+    {
+        static public Cell[] GetCells(int x, int y, Cell[,] field)
         {
-            int count = 0;
-            bool[] ngbs = new bool[8]
+            int cols = field.GetLength(0);
+            int rows = field.GetLength(1);
+            Cell[] ngbs = new Cell[]
             {
                 field[(x+cols) % cols, (y+1+rows) % rows],
                 field[(x+cols) % cols, (y-1+rows) % rows],
@@ -41,33 +87,59 @@ namespace GameOfLife
                 field[(x+1+cols) % cols, (y-1+rows) % rows],
                 field[(x-1+cols) % cols, (y+1+rows) % rows]
             };
-            foreach (bool i in ngbs)
+            return ngbs;
+        }
+        static public int CountNeighbours(int x, int y, Cell[,] field)
+        {
+            int count = 0;
+            
+            foreach (var i in GetCells(x, y, field))
             {
-                if (i) count++;
+                if (i is GrassCell) count++;
             }
             return count;
         }
-        public void NextGen()
+    }
+    public class GameEngine
+    {
+        private Cell[,] field;
+        private readonly int rows;
+        private readonly int cols;
+        public uint currentGen { get; private set; }
+        private Random random = new Random();
+        public GameEngine(int rows, int cols, int density)
         {
-            var newField = new bool[cols, rows];
+            this.rows = rows;
+            this.cols = cols;
+            field = new Cell[cols, rows];
+
             for (int x = 0; x < cols; x++)
             {
                 for (int y = 0; y < rows; y++)
                 {
-                    int neighboursCount = CountNeighbours(x, y);
-                    bool hasLife = field[x, y];
-
-                    if (!hasLife && neighboursCount == 3) newField[x, y] = true;
-                    else if (hasLife && (neighboursCount < 2 || neighboursCount > 3)) newField[x, y] = false;
-                    else newField[x, y] = field[x, y];
+                    if (random.Next(density) == 0) field[x, y] = new GrassCell(x, y);
+                    else field[x, y] = new EmptyCell(x, y);
                 }
             }
-            field = newField;
+        }
+        public void NextGen()
+        {
+            for (int x = 0; x < cols; x++)
+            {
+                for (int y = 0; y < rows; y++)
+                {
+                    if (field[x, y] is GrassCell)
+                    {
+                        GrassCell cell = new GrassCell(x, y);
+                        cell.Mult(x, y, field);
+                    }
+                }
+            }
             currentGen++;
         }
-        public bool[,] GetCurrentGen()
+        public Cell[,] GetCurrentGen()
         {
-            var res = new bool[cols, rows];
+            var res = new Cell[cols, rows];
             for (int x = 0; x < cols; x++)
             {
                 for (int y = 0; y < rows; y++)

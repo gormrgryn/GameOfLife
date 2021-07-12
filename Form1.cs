@@ -53,7 +53,8 @@ namespace GameOfLife
             {
                 for (int y = 0; y < field.GetLength(1); y++)
                 {
-                    if (field[x, y]) graphics.FillRectangle(Brushes.Coral, x * resolution, y * resolution, resolution, resolution);
+                    if (field[x, y] is GrassCell) graphics.FillRectangle(Brushes.Green, x * resolution, y * resolution, resolution, resolution);
+                    else graphics.FillRectangle(Brushes.Gray, x * resolution, y * resolution, resolution, resolution);
                 }
             }
             pictureBox1.Refresh();
