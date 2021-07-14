@@ -56,6 +56,7 @@ namespace GameOfLife
                     Brush color;
                     if (field[x, y] is GrassCell) color = Brushes.Green;
                     else if (field[x, y] is GrassEaterCell) color = Brushes.Yellow;
+                    else if (field[x, y] is PredatorCell) color = Brushes.Crimson;
                     else color = Brushes.Gray;
                     graphics.FillRectangle(color, x * resolution, y * resolution, resolution, resolution);
                 }

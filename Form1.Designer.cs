@@ -106,7 +106,7 @@ namespace GameOfLife
             this.nudDensity.TabIndex = 4;
             this.nudDensity.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.nudDensity.Value = new decimal(new int[] {
-            3,
+            4,
             0,
             0,
             0});

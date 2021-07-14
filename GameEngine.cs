@@ -56,6 +56,7 @@ namespace GameOfLife
                     int rand = random.Next(density);
                     if (rand == 1) field[x, y] = new GrassCell(x, y);
                     else if (rand == 2) field[x, y] = new GrassEaterCell(x, y);
+                    else if (rand == 3) field[x, y] = new PredatorCell(x, y);
                     else field[x, y] = new EmptyCell(x, y);
                 }
             }
@@ -74,10 +75,12 @@ namespace GameOfLife
                     else if (field[x, y] is GrassEaterCell)
                     {
                         GrassEaterCell cell = (GrassEaterCell) field[x, y];
-                        cell.Die(x, y, field);
                         cell.Eat(x, y, field);
-                        cell.Move(x, y, field);
-                        cell.Mult(x, y, field);
+                    }
+                    else if (field[x, y] is PredatorCell)
+                    {
+                        PredatorCell cell = (PredatorCell)field[x, y];
+                        cell.Eat(x, y, field);
                     }
                 }
             }
