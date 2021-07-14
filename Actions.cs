@@ -10,6 +10,10 @@ namespace GameOfLife
     {
         bool DoAction(int x, int y, Creator creator, Cell[,] field);
     }
+    interface ITypeAction<T> // ACTION INTERFACE
+    {
+        bool DoAction(int x, int y, Creator creator, Cell[,] field);
+    }
     class MultAction : IAction // ACTION CLASS
     {
         public bool DoAction(int x, int y, Creator creator, Cell[,] field)
@@ -32,11 +36,15 @@ namespace GameOfLife
         public bool DoAction(int x, int y, Creator creator, Cell[,] field)
         {
             Cell[] cells = GetNeighbours.GetCells(x, y, field);
-            foreach (var i in cells)
+            cells = cells.Where(c => c is EmptyCell).ToArray();
+            if (cells.Length != 0)
             {
-                if (i is EmptyCell)
+                Random random = new Random();
+                int rnd = random.Next(cells.Length);
+                Cell cell = cells[rnd];
+                if (cell != null)
                 {
-                    field[i.x, i.y] = field[x, y];
+                    field[cell.x, cell.y] = field[x, y];
                     field[x, y] = new EmptyCell(x, y);
                     return true;
                 }
@@ -52,14 +60,14 @@ namespace GameOfLife
             return true;
         }
     }
-    class EatAction : IAction
+    class EatAction<T> : ITypeAction<T>
     {
         public bool DoAction(int x, int y, Creator creator, Cell[,] field)
         {
             Cell[] cells = GetNeighbours.GetCells(x, y, field);
             foreach (var i in cells)
             {
-                if (i is GrassCell)
+                if (i is T)
                 {
                     field[i.x, i.y] = field[x, y];
                     field[x, y] = new EmptyCell(x, y);

@@ -12,29 +12,52 @@ namespace GameOfLife
         {
             int cols = field.GetLength(0);
             int rows = field.GetLength(1);
-            Cell[] ngbs = new Cell[]
+            Cell[] ngbs = new Cell[8];
+            int k = 0;
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
                 {
-                    field[(x+cols) % cols, (y+1+rows) % rows],
-                    field[(x+cols) % cols, (y-1+rows) % rows],
-                    field[(x+1+cols) % cols, (y+rows) % rows],
-                    field[(x-1+cols) % cols, (y+rows) % rows],
-                    field[(x+1+cols) % cols, (y+1+rows) % rows],
-                    field[(x-1+cols) % cols, (y-1+rows) % rows],
-                    field[(x+1+cols) % cols, (y-1+rows) % rows],
-                    field[(x-1+cols) % cols, (y+1+rows) % rows]
-                };
+                    if (i != 0 && j != 0 && x + i >= 0 && y + j >= 0 && x + i < cols && y + j < rows)
+                    {
+                        ngbs[k] = field[x + i, y + j];
+                    }
+                    if (i != 0 && j != 0)
+                    {
+                        k++;
+                    }
+                }
+            }
             return ngbs;
         }
-        static public int CountNeighbours(int x, int y, Cell[,] field)
-        {
-            int count = 0;
-            
-            foreach (var i in GetCells(x, y, field))
-            {
-                if (i is GrassCell) count++;
-            }
-            return count;
-        }
+        //static public Cell[] GetCells(int x, int y, Cell[,] field)
+        //{
+        //    int cols = field.GetLength(0);
+        //    int rows = field.GetLength(1);
+        //    Cell[] ngbs = new Cell[]
+        //        {
+        //            field[(x+cols) % cols, (y+1+rows) % rows],
+        //            field[(x+cols) % cols, (y-1+rows) % rows],
+        //            field[(x+1+cols) % cols, (y+rows) % rows],
+        //            field[(x-1+cols) % cols, (y+rows) % rows],
+        //            field[(x+1+cols) % cols, (y+1+rows) % rows],
+        //            field[(x-1+cols) % cols, (y-1+rows) % rows],
+        //            field[(x+1+cols) % cols, (y-1+rows) % rows],
+        //            field[(x-1+cols) % cols, (y+1+rows) % rows]
+        //        };
+        //    return ngbs;
+        //}
+
+        //static public int CountNeighbours(int x, int y, Cell[,] field)
+        //{
+        //    int count = 0;
+
+        //    foreach (var i in GetCells(x, y, field))
+        //    {
+        //        if (i is GrassCell) count++;
+        //    }
+        //    return count;
+        //}
     }
     public class GameEngine
     {
@@ -48,7 +71,6 @@ namespace GameOfLife
             this.rows = rows;
             this.cols = cols;
             field = new Cell[cols, rows];
-
             for (int x = 0; x < cols; x++)
             {
                 for (int y = 0; y < rows; y++)

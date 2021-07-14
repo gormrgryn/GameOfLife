@@ -37,7 +37,7 @@ namespace GameOfLife
         }
         public void Eat(int x, int y, Cell[,] field)
         {
-            IAction eatAction = new EatAction();
+            ITypeAction<GrassCell> eatAction = new EatAction<GrassCell>();
             bool res = eatAction.DoAction(x, y, null, field);
             if (res)
             {
@@ -45,7 +45,6 @@ namespace GameOfLife
                 if (energy >= 5) Mult(x, y, field);
             }
             else Move(x, y, field);
-            
         }
     }
     public class GrassEaterCreator : Creator

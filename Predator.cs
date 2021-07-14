@@ -24,9 +24,9 @@ namespace GameOfLife
         {
             if (energy >= 1)
             {
+                energy--;
                 IAction moveAction = new MoveAction();
-                bool res = moveAction.DoAction(x, y, null, field);
-                if (res) energy--;
+                moveAction.DoAction(x, y, null, field);
             }
             else Die(x, y, field);
         }
@@ -37,7 +37,7 @@ namespace GameOfLife
         }
         public void Eat(int x, int y, Cell[,] field)
         {
-            IAction eatAction = new EatAction();
+            ITypeAction<GrassEaterCell> eatAction = new EatAction<GrassEaterCell>();
             bool res = eatAction.DoAction(x, y, null, field);
             if (res)
             {
